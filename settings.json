@@ -1,0 +1,67 @@
+
+// To view the default settings, hold "alt" while clicking on the "Settings" button.
+// For documentation on these settings, see: https://aka.ms/terminal-documentation 
+// test
+
+{
+    "$schema": "https://aka.ms/terminal-profiles-schema",
+    "defaultProfile": "{2c4de342-38b7-51cf-b940-2309a097f518}",
+    "profiles":{
+        "defaults":
+        {
+            "fontFace"      : "Ricty Diminished",
+            "fontSize"      : 10,
+            "cursorShape"   : "underscore",
+            "colorScheme"   : "One Half Dark",
+            "hidden"        : false
+        },
+        "list":
+        [
+            {
+                "guid": "{61c54bbd-c2c6-5271-96e7-009a87ff44bf}",
+                "name": "Windows PowerShell",
+                "commandline": "powershell.exe"
+            },
+            {
+                "guid": "{0caa0dad-35be-5f56-a8ff-afceeeaa6101}",
+                "name": "cmd",
+                "commandline": "cmd.exe"
+            },
+            {
+                "guid": "{c6eaf9f4-32a7-5fdc-b5cf-066e8a4b1e40}",
+                "name": "Ubuntu-18.04",
+                "source": "Windows.Terminal.Wsl",
+                "commandline": "wsl.exe ~ -d Ubuntu-18.04"
+            },
+            {
+                "guid": "{2c4de342-38b7-51cf-b940-2309a097f518}",
+                "name": "Ubuntu-20.04",
+                "source": "Windows.Terminal.Wsl",
+                "commandline": "wsl.exe ~ -d Ubuntu"
+            },
+            {
+                "guid": "{b453ae62-4e3d-5e58-b989-0a998ec441b8}",
+                "hidden": false,
+                "name": "Azure Cloud Shell",
+                "source": "Windows.Terminal.Azure"
+            }
+        ]
+        
+    },
+
+
+    // Add custom color schemes to this array
+    "schemes": [],
+
+    // Add any keybinding overrides to this array.
+    // To unbind a default keybinding, set the command to "unbound"
+    "keybindings": [
+      	    { "command" : "closeTab", "keys" :  [ "alt+w" ] },
+            { "command" : "newTab", "keys" :  [ "alt+t" ] },
+            { "command": "nextTab", "keys": ["ctrl+tab"] },
+            { "command" : "closePane", "keys" :  [ "alt+shift+w" ] },
+            { "command": "copy", "keys": ["ctrl+c"] },
+            { "command": "paste", "keys": ["ctrl+v"] },
+            { "command": "nextTab", "keys": ["ctrl+tab"] }
+	]
+}
