@@ -8,7 +8,12 @@ PROMPT="$n
 RPROMPT='`rprompt-git-current-branch`%F{white}[%~]%'
 #####################################
 
+#PATH
+export PATH=$PATH:~/.local/bin 
+
 #基本
+bindkey ";5C" forward-word
+bindkey ";5D" backward-word
 setopt no_beep # beep を無効にする
 setopt noclobber
 setopt notify # バックグラウンド処理の状態変化をすぐに通知する
@@ -16,18 +21,17 @@ setopt rm_star_wait # rm * の前に確認をとる
 setopt auto_pushd # cd したら自動的にpushdする
 setopt auto_cd # ディレクトリ名だけでcdする
 setopt transient_rprompt # コマンド実行後は右プロンプトを消す
-chpwd() { ls --color=auto } #cdのあとに自動でls
+chpwd() { ls } #cdのあとに自動でls
 setopt prompt_subst # プロンプトが表示されるたびにプロンプト文字列を評価、置換する
+
+#区切り文字と認識しない記号
+export WORDCHARS="*?.[]~&;=!#$%^(){}<>"
 
 #補完
 autoload -U compinit
+compinit
 setopt correct
 setopt COMPLETE_IN_WORD # allow tab completion in the middke of word
-
-#環境変数
-export HISTFILE=~/.zhistory # コマンド履歴を保存するファイルを指定する
-export HISTSIZE=1000 # メモリに保存する履歴の件数を指定
-export SAVEHIST=100000 # ファイルに保存する履歴の件数を指定する
 
 # history
 setopt hist_ignore_all_dups # 履歴中の重複行をすべて削除する
@@ -35,6 +39,12 @@ setopt hist_ignore_dups # 直前と重複するコマンドを記録しない
 setopt share_history  # シェルのプロセスごとに履歴を共有
 setopt extended_history  # 履歴ファイルに時刻を記録
 setopt append_history  # 複数の zsh をhistory ファイルに上書きせず追加
+setopt histignorealldups sharehistory
+
+# Keep 1000 lines of history within the shell and save it to ~/.zsh_history:
+HISTSIZE=1000
+SAVEHIST=1000
+HISTFILE=~/.zsh_history
 
 ## alias
 # 基本
@@ -42,7 +52,7 @@ alias v='vim'
 alias vi='vim'
 alias la='ls -la --color=auto'
 alias ls="ls -F"
-alias woodh="/mnt/c/Users/woodh"
+alias ll="ls -l"
 
 # cd
 alias '..'='cd ..'
@@ -50,33 +60,7 @@ alias -g ...='../..'
 alias -g ....='../../..'
 alias -g .....='../../../..'
 
-# git 更新
-alias ga='git add'
-alias gb='git branch'
-alias gco='git checkout'
-alias gci='git commit'
-alias gcm='git commit -m'
-# git 確認
-alias gs='git status'
-alias gd='git diff'
-alias gds='git diff --staged'
-alias gl='git log'
-alias glo='git log --online'
-# git 変更取り消し
-alias grh='git reset HEAD'
-alias gca='git commit --amend'
-# git push
-alias gp='git push'
-# git remote
-alias gr='git remote'
-alias grs='git remote show'
-# git fetch
-alias gf='git fetch'
-alias gfo='git fetch origin'
-# git merge
-alias gm='git merge'
-
-# zsh
+# zshrv
 alias sz='source ~/.zshrc'
 alias sv='source ~/.vimrc'
 alias vz='vim ~/.zshrc'
@@ -91,12 +75,13 @@ alias -g H='| head'
 alias -g T='| tail'
 alias -g S='| sed'
 alias -g C='| cat'
+alias -g clip='| xsel --clipboard --input'
 
 # python
-alias python="python3"
+alias python="python3" 
+alias pip="pip3"
 alias jnote="jupyter notebook"
 alias jlab="jupyter-lab"
-alias pip="python -m pip"
 alias pip-upgrade-all="pip list -o | tail -n +3 | awk '{ print \$1 }' | xargs pip install -U"
 
 
@@ -106,38 +91,85 @@ alias pip-upgrade-all="pip list -o | tail -n +3 | awk '{ print \$1 }' | xargs pi
 if [[ ! -f $HOME/.zinit/bin/zinit.zsh ]]; then
     print -P "%F{33}▓▒░ %F{220}Installing DHARMA Initiative Plugin Manager (zdharma/zinit)…%f"
     command mkdir -p "$HOME/.zinit" && command chmod g-rwX "$HOME/.zinit"
-    command git clone https://github.com/zdharma/zinit "$HOME/.zinit/bin" && \
-        print -P "%F{33}▓▒░ %F{34}Installation successful.%f" || \
-        print -P "%F{160}▓▒░ The clone has failed.%f"
+    command git clone https://github.com/zdharma-continuum/zinit "$HOME/.zinit/bin" && \
+        print -P "%F{33}▓▒░ %F{34}Installation successful.%f%b" || \
+        print -P "%F{160}▓▒░ The clone has failed.%f%b"
 fi
+
 source "$HOME/.zinit/bin/zinit.zsh"
 autoload -Uz _zinit
 (( ${+_comps} )) && _comps[zinit]=_zinit
-### End of Zinit installer's chunk
-# Two regular plugins loaded without tracking.
+
+# Load a few important annexes, without Turbo
+# (this is currently required for annexes)
+zinit light-mode for \
+    zdharma-continuum/z-a-patch-dl \
+    zdharma-continuum/z-a-as-monitor \
+    zdharma-continuum/z-a-bin-gem-node
+### End of Zinit's installer chunk
+
+source $HOME/.zinit/bin/zinit.zsh
+autoload -Uz _zinit
+(( ${+_comps} )) && _comps[zinit]=_zinit
+
+# two regular plugins loaded without tracking.
 zinit light zsh-users/zsh-autosuggestions
-zinit light zdharma/fast-syntax-highlighting
+zinit light zdharma-continuum/fast-syntax-highlighting
 
 # Plugin history-search-multi-word loaded with tracking.
-zinit load zdharma/history-search-multi-word
+zinit load zdharma-continuum/history-search-multi-word
 
 # Binary release in archive, from GitHub-releases page.
 # After automatic unpacking it provides program "fzf".
 zinit ice from"gh-r" as"program"
 zinit load junegunn/fzf-bin
 
-#fzfの設定
-export FZF_DEFAULT_OPTS='--color=fg+:11 --height 70% --reverse --select-1 --exit-0 --multi'
+zinit wait lucid atload"zicompinit; zicdreplay" blockf for zsh-users/zsh-completions
+
+
+# fzfの設定
+export FZF_DEFAULT_OPTS='--color=fg+:11 --height 70% --reverse --multi'
 
 # fzf-cdr 
- alias cdd='fzf-cdr'
- function fzf-cdr() {
-     target_dir=`cdr -l | sed 's/^[^ ][^ ]*  *//' | fzf`
-     target_dir=`echo ${target_dir/\~/$HOME}`
-     if [ -n "$target_dir" ]; then
-          cd $target_dir
-     fi
+function cdd() {
+    target_dir=`cdr -l | sed 's/^[^ ][^ ]*  *//' | fzf`
+    target_dir=${target_dir/\~/$HOME}
+    target_dir=${target_dir//\\/}
+    if [ -n "$target_dir" ]; then
+        cd $target_dir
+    fi
 }
+
+# fzfでインタラクティブにgcloudのconfigをactivateする。
+function gcloud-activate() {
+  name="$1"
+  project="$2"
+  echo "gcloud config configurations activate \"${name}\""
+  gcloud config configurations activate "${name}"
+}
+function set-credential() {
+  name="$1"
+  credentials_path=$(cat /home/morioka/.gcloud-credentials/credentilas-table.csv | grep -E "^${name}" | awk '{print $2}')
+  echo "set GOOGLE_APPLICATION_CREDENTIALS \"${name}\""
+  echo $credentials_path
+  export GOOGLE_APPLICATION_CREDENTIALS="/home/morioka/.gcloud-credentials/json/$credentials_path"
+}
+function gx-complete() {
+  _values $(gcloud config configurations list | awk '{print $1}')
+}
+function gx() {
+  name="$1"
+  if [ -z "$name" ]; then
+    line=$(gcloud config configurations list | fzf)
+    name=$(echo "${line}" | awk '{print $1}')
+  else
+    line=$(gcloud config configurations list | grep "$name")
+  fi
+  project=$(echo "${line}" | awk '{print $4}')
+  gcloud-activate "${name}" "${project}"
+  set-credential "${name}"
+}
+compdef gx-complete gx
 
 
 #----- cdr#autoload -Uz is-at-least
@@ -185,12 +217,110 @@ function rprompt-git-current-branch {
   # ブランチ名を色付きで表示する
   echo "${branch_status}[$branch_name]"
 }
- 
-
-
 
 ############################################
-#PATH
-export PATH=$PATH:~/.local/bin  
+
+ssh-fzf() {
+    local sshLoginHost
+    sshLoginHost=`cat ~/.ssh/config | grep -i ^host | awk '{print $2}' | fzf`
+    if [[ -n "$sshLoginHost" ]]; then
+        ssh ${sshLoginHost}
+    fi
+}
+
+############################################
+
+# Git
+
+function git-switch() {
+  git branch -vv | fzf +m | awk '{print $1}' | sed "s/.* //" | xargs --no-run-if-empty git switch
+}
+
+function git-download() {
+  git branch -rvv | fzf +m | awk '{print $1}' | sed "s/.* //" | xargs --no-run-if-empty  git switch -c 
+}
 
 
+function git-delete() {
+  local arg=-d
+  if [[ $1 == "-f" ]] then
+    arg=-D
+  fi
+  git branch -vv | fzf +m | awk '{print $1}' | sed "s/.* //" | xargs --no-run-if-empty git branch $arg
+}
+
+function git-add() {
+  local selected=$(git status -s | fzf | awk '{print $2}' | sed -z "s/\n/ /g")
+  if [[ -n "$selected" ]]; then
+    git add ${=selected}
+  fi
+}
+
+function git-restore() {
+  local arg 
+
+  if [[ $1 == "--worktree" ]] then
+    arg=""
+  elif [[ $1 == "--staged" ]] then
+    arg="--staged"
+  elif [[ $1 == "--hard" ]] then
+    arg="--source=HEAD --staged --worktree"
+  else 
+    echo "arg shoud --worktree | --staged | --hard"
+    return
+  fi
+
+  local selected=$(git status -s | fzf | awk '{print $2}' | sed -z "s/\n/ /g")
+  if [[ -n "$selected" ]]; then
+    git restore ${=arg} ${=selected}
+  fi
+}
+
+
+## 歴史改変するためのgit alias ※参照（https://qiita.com/kawarimidoll/items/cc76b1913372ff478206）
+# 歴史を思い出す
+function git-log(){
+  git log --graph --color=always --format="%C(auto)%h%d %C(black bold)%cr %C(auto)%s" "$@" | \
+  fzf --ansi --exit-0 --no-sort --no-multi --tiebreak=index --height=100% \
+  --preview="grep -o '[a-f0-9]\{7\}' <<< {} | head -1 | xargs --no-run-if-empty git show --color=always" \
+  --header="Ctrl-y to toggle preview, Ctrl-u to preview down, Ctrl-i to preview up" \
+  --bind="ctrl-y:toggle-preview,ctrl-u:preview-down,ctrl-i:preview-up" \
+  --preview-window=down:60% | grep -oE '[a-f0-9]{7}' | head -1
+}
+
+# 歴史を巻き戻す
+function git-reset(){
+  git-log | xargs --no-run-if-empty git reset --soft
+}
+
+# 歴史を書き換える
+function git-rebase(){
+  git-log | xargs --no-run-if-empty --open-tty git rebase -i
+}
+
+# 未来へ戻る
+function git-btf(){
+  git rebase --continue
+}
+
+# 歴史を整理する
+function git-fixup(){
+  git-log | xargs --no-run-if-empty -I_ git commit --fixup _ && git rebase -i --autosquash
+}
+
+############################################
+#GUI
+export DISPLAY=$(cat /etc/resolv.conf | grep nameserver | awk '{print $2}'):0
+
+#yarn global bin
+export PATH="$PATH:`yarn global bin`"
+
+# golang
+export GOPATH="$HOME/go"
+export PATH="$PATH:/usr/local/go/bin:$GOPATH/bin"
+
+# The next line updates PATH for the Google Cloud SDK.
+if [ -f '/home/morioka/.google-cloud-sdk/path.zsh.inc' ]; then . '/home/morioka/.google-cloud-sdk/path.zsh.inc'; fi
+
+# The next line enables shell command completion for gcloud.
+if [ -f '/home/morioka/.google-cloud-sdk/completion.zsh.inc' ]; then . '/home/morioka/.google-cloud-sdk/completion.zsh.inc'; fi
